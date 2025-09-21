@@ -1,0 +1,9 @@
+Django>=4.2
+pytest
+pytest-django
+pytest-cov
+coverage
+ruff
+oracledb>=2.0
+cx_Oracle
+oracledb
