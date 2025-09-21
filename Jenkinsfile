@@ -87,15 +87,22 @@ pipeline {
       }
     }
 
-    /*
     stage('Django sanity') {
       steps {
-        sh '''
-          set -euxo pipefail
-          . "${VENV}/bin/activate"
-          python manage.py check --deploy --settings=${DJANGO_SETTINGS_MODULE} | tee logs/django-check.txt
-          python manage.py makemigrations --check --dry-run --settings=${DJANGO_SETTINGS_MODULE} | tee logs/makemigrations-check.txt
-        '''
+        withCredentials([
+          usernamePassword(credentialsId: 'ORACLE_DB_CREDS', usernameVariable: 'ORA_USER', passwordVariable: 'ORA_PASSWORD'),
+          string(credentialsId: 'ORA_HOST', variable: 'ORA_HOST'),
+          string(credentialsId: 'ORA_PORT', variable: 'ORA_PORT'),
+          string(credentialsId: 'ORA_SERVICE', variable: 'ORA_SERVICE'),
+          string(credentialsId: 'DJANGO_SECRET_KEY', variable: 'DJANGO_SECRET_KEY')
+        ]) {
+          sh '''
+            set -euxo pipefail
+            . "${VENV}/bin/activate"
+            python manage.py check --deploy --settings=${DJANGO_SETTINGS_MODULE} | tee logs/django-check.txt
+            python manage.py makemigrations --check --dry-run --settings=${DJANGO_SETTINGS_MODULE} | tee logs/makemigrations-check.txt
+          '''
+        }
       }
       post {
         always {
@@ -107,7 +114,6 @@ pipeline {
         }
       }
     }
-    */
 
     stage('Unit Tests (Oracle)') {
       /* environment {
